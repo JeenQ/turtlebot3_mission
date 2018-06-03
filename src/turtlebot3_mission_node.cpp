@@ -6,11 +6,12 @@
 #include <std_msgs/Int32.h>
 #include <cmath>
 
-geometry_msgs::Twist cmd;
+// 콜백 함수 안에서 쓰이는 변수는 전역으로 선언하여 main()안에서도 쓸 수 있도록 한다.
 int angle;
 
+// quaternion을 각도로 바꿔주는 함수
 int quaternion2Angle(tf::Quaternion q);
-
+// /amcl_pose 토픽 콜백 함수
 void amclMsgCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg){
     tf::Quaternion q(msg->pose.pose.orientation.x, 
                      msg->pose.pose.orientation.y, 
@@ -18,6 +19,7 @@ void amclMsgCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
                      msg->pose.pose.orientation.w);
     angle = quaternion2Angle(q);
 }
+// /scan 토픽 콜백 함수
 void scanMsgCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
     std::vector<float> ranges = msg->ranges;
 }
@@ -26,17 +28,22 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "turtlebot3_mission");
     ros::NodeHandle nh;
     ros::Rate loop_rate(10);
+    // /cmd_vel 토픽 publisher 선언
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 5);
+    // /amcl_pose 토픽 subscriber 선언
     ros::Subscriber amclSub = nh.subscribe("/amcl_pose", 100, amclMsgCallback);
+    // /scan 토픽 subscriber 선언
     ros::Subscriber scanSub = nh.subscribe("/scan", 100, scanMsgCallback);
+
     while(ros::ok()){
         ros::spinOnce();
+        // 현재 로봇이 보고 있는 방향의 각도 출력
         ROS_INFO("Angle : %d", angle);
         loop_rate.sleep();
     }
     return 0;
 }
-
+// quaternion을 각도로 바꿔주는 함수
 int quaternion2Angle(tf::Quaternion q){
     tf::Matrix3x3 m(q);
     double roll, pitch, yaw;

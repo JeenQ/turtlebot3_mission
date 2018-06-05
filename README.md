@@ -54,6 +54,7 @@ http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/LaserScan.html
     #include <tf/transform_datatypes.h>
     #include <std_msgs/Int32.h>
     #include <cmath>
+    
     // 콜백 함수 안에서 쓰이는 변수는 전역으로 선언하여 main()안에서도 쓸 수 있도록 한다.
     int angle;
     // quaternion을 각도로 바꿔주는 함수
@@ -62,6 +63,7 @@ http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/LaserScan.html
     // 현재의 위치를 인식하여 좌표와 바라보는 방향을 알려준다.
     // 이때 방향을 알려주기 위한 방법으로 quaternion이라는 것을 사용하는데
     // 생소할 수 있으므로 각도로 바꿔주었다.
+    
     void amclMsgCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg){
         tf::Quaternion q(msg->pose.pose.orientation.x, 
                      msg->pose.pose.orientation.y, 
@@ -69,11 +71,13 @@ http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/LaserScan.html
                      msg->pose.pose.orientation.w)
         angle = quaternion2Angle(q);
     }
+    
     // /scan 토픽 콜백 함수
     void scanMsgCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
         std::vector<float> ranges = msg->ranges;
         // ranges[index] -> 다음과 같은 방법으로 접근할 수 있다.
     }
+    
     int main(int argc, char** argv){
         ros::init(argc, argv, "turtlebot3_mission");
         ros::NodeHandle nh;
@@ -84,6 +88,7 @@ http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/LaserScan.html
         ros::Subscriber amclSub = nh.subscribe("/amcl_pose", 100, amclMsgCallback);
         // /scan 토픽 subscriber 선언
         ros::Subscriber scanSub = nh.subscribe("/scan", 100, scanMsgCallback);
+        
         while(ros::ok()){
             ros::spinOnce();
             // 현재 로봇이 보고 있는 방향의 각도 출력
@@ -92,6 +97,7 @@ http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/LaserScan.html
         }
         return 0;
     }
+    
     // quaternion을 각도로 바꿔주는 함수
     int quaternion2Angle(tf::Quaternion q){
         tf::Matrix3x3 m(q);

@@ -55,15 +55,16 @@ http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/LaserScan.html
     #include <std_msgs/Int32.h>
     #include <cmath>
     
-    // 콜백 함수 안에서 쓰이는 변수는 전역으로 선언하여 main()안에서도 쓸 수 있도록 한다.
-    int angle;
     // quaternion을 각도로 바꿔주는 함수
     int quaternion2Angle(tf::Quaternion q);
+    
+    // 콜백 함수 안에서 쓰이는 변수는 전역으로 선언하여 main()안에서도 쓸 수 있도록 한다.
+    int angle;
+    
     // /amcl_pose 토픽 콜백 함수
     // 현재의 위치를 인식하여 좌표와 바라보는 방향을 알려준다.
     // 이때 방향을 알려주기 위한 방법으로 quaternion이라는 것을 사용하는데
     // 생소할 수 있으므로 각도로 바꿔주었다.
-    
     void amclMsgCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg){
         tf::Quaternion q(msg->pose.pose.orientation.x, 
                      msg->pose.pose.orientation.y, 

@@ -45,11 +45,11 @@ int main(int argc, char** argv){
     //  목적지 토픽에 대한 subscriber
     ros::Subscriber goalSub = nh.subscribe("/move_base_simple/goal", 100, goalMsgCallback);
 
-
+    double a;
     while(ros::ok()){
         ros::spinOnce();
         // 현재 로봇이 보고 있는 방향의 각도 출력
-        ROS_INFO("%f, %f", goal_x, goal_y);
+        std::cout<<angle<<std::endl;
         loop_rate.sleep();
     }
     return 0;
@@ -61,10 +61,13 @@ int quaternion2Angle(tf::Quaternion q){
     m.getRPY(roll, pitch, yaw);
     int a = (int)(yaw/M_PI*180);
     if(a>0){
-        a = 360-a;
+        a = 90-a;
+        if(a<0){
+            a=360+a;
+        }
     }
     else if(a<0){
-        a = a * (-1);
+        a = 90+(-1)*a;
     }
     return a;
 }

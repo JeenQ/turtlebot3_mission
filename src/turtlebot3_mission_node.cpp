@@ -3,11 +3,13 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <tf/transform_datatypes.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/Int32.h>
 #include <cmath>
 
 // 콜백 함수 안에서 쓰이는 변수는 전역으로 선언하여 main()안에서도 쓸 수 있도록 한다.
 int angle;
+double goal_x, goal_y;
 
 // quaternion을 각도로 바꿔주는 함수
 int quaternion2Angle(tf::Quaternion q);
@@ -22,6 +24,12 @@ void amclMsgCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
 // /scan 토픽 콜백 함수
 void scanMsgCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
     std::vector<float> ranges = msg->ranges;
+    // ranges[90];
+}
+// 목적지 토픽 콜백 함수
+void goalMsgCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
+    goal_x = msg->pose.position.x;
+    goal_y = msg->pose.position.y;
 }
 
 int main(int argc, char** argv){
@@ -34,11 +42,14 @@ int main(int argc, char** argv){
     ros::Subscriber amclSub = nh.subscribe("/amcl_pose", 100, amclMsgCallback);
     // /scan 토픽 subscriber 선언
     ros::Subscriber scanSub = nh.subscribe("/scan", 100, scanMsgCallback);
+    //  목적지 토픽에 대한 subscriber
+    ros::Subscriber goalSub = nh.subscribe("/move_base_simple/goal", 100, goalMsgCallback);
+
 
     while(ros::ok()){
         ros::spinOnce();
         // 현재 로봇이 보고 있는 방향의 각도 출력
-        ROS_INFO("Angle : %d", angle);
+        ROS_INFO("%f, %f", goal_x, goal_y);
         loop_rate.sleep();
     }
     return 0;
